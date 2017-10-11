@@ -1,0 +1,289 @@
+# This is an **example** API to demontstrate features of OpenAPI specification.
+# It doesn't cover all OpenAPI features. For more full example check out: https://github.com/APIs-guru/petstore_extended
+
+swagger: '2.0'
+# You should specify common part of your endpoints in the following format:
+#   <schemes>://<host><basepath>
+schemes:
+  - http # Remove if your API doesn't support HTTP
+  - https # Remove if your API donsn't support HTTPS
+host: example.com # Replace with your hostname. You can also specify port e.g. example.com:777
+basePath: /api/v1 # Replace with your basePath. Note: SHOULD begin with '/'.
+info:
+  # Describe your API here, you can use GFM (https://guides.github.com/features/mastering-markdown) here
+  description: |
+    This is an **example** API to demontstrate features of OpenAPI specification
+    # Introduction
+    This specification is intended to to be a good starting point for describint your API in 
+    [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
+    It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
+    [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
+    [vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).
+  
+
+  version: '1.0.0' # Your API version
+  # It can be any string but it is better to use semantic versioning: http://semver.org/
+  # Warning: OpenAPI require version to be string, but without quotation YAML can recognize it as number.
+
+  title: Storygram API # Replace with your API title
+  # Keep it simple. Don't add "API" or verison at the end of the string.
+
+  termsOfService: 'https://example.com/terms/' # [Optional] Replace with an URL to your ToS
+  contact:
+    email: contact@example.com # [Optional] Replace with your contact email
+    url: 'http://example.com/contact' # [Optional] Replace with link to your contact form
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  #x-logo:
+    #url: 'https://apis.guru/openapi-template/logo.png'
+externalDocs:
+  description: Find out how to create Github repo for your OpenAPI spec.
+  url: 'https://github.com/Rebilly/generator-openapi-repo'
+produces:
+  # List of mime types your API endpoins can return.
+  # This is a global default. You can OVERWRITE it in each specific operation.
+  # Remove the ones not used in your API
+  - application/json
+  - application/xml
+  - text/csv
+  # you can add any mime type your API produces to the list
+consumes:
+  # List of mime types your API endpoins consumes.
+  # This is a global default. You can OVERWRITE it in each specific operation.
+  # Remove the ones not supported by your API
+  - application/json
+  - application/xml
+  # you can add any mime type your API consumes to the list
+
+# A list of tags used by the specification with additional metadata.
+# The order of the tags can be used to reflect on their order by the parsing tools.
+tags:
+  - name: Collection
+    description: APIs for collecting and digitizing mementos
+  - name: Reminiscence
+    description: APIs for reminiscence
+
+# Holds the relative paths to the individual endpoints. The path is appended to the
+# basePath in order to construct the full URL. 
+paths:
+  '/memento/{mementoId}': # path parameter in curly braces
+    get:
+      tags:
+        - Collection
+      summary: Get memento by id
+      description: | 
+        Retrieves a memento referenced by the URI.
+      operationId: getMementoById
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - name: mementoId
+          in: path
+          description: The memento id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Memento'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+    put:
+      tags:
+        - Collection
+      summary: Modify memento by id
+      description: | 
+        Updates a memento referenced by the URI.
+      operationId: updateMementoById
+      x-swagger-router-controller: Collection
+      parameters:
+        - name: mementoId
+          in: path
+          description: The memento id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Updates to the memento
+          required: true
+          schema:
+            $ref: '#/definitions/Memento'
+      consumes:
+        - application/json
+      responses: # list of responses
+        204:
+          description: Success
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'          
+    
+  '/mementos': # path parameter in curly braces
+    post:
+      tags:
+        - Collection
+      summary: Create memento
+      description: | 
+         Creates a new memento
+      operationId: postMemento
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - in: body
+          name: body
+          description: Updates to the memento
+          required: true
+          schema:
+            $ref: '#/definitions/Memento'
+      produces:
+        - application/json
+      responses: # list of responses
+        201:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Memento'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+        422:
+          $ref: '#/responses/InvalidDataError' 
+    get:
+      tags:
+        - Collection
+      summary: Get mementos
+      description: | 
+        Retrieves a memento referenced by the URI.
+      operationId: getMementos
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/Memento'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+
+# An object to hold data types that can be consumed and produced by operations.
+# These data types can be primitives, arrays or models.
+definitions:
+  Memento:
+    type: object
+    properties: 
+      id:
+        allOf: 
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      uploadedBy:
+        $ref: '#/definitions/User'  
+      uploadedOn:
+        description: Datetime the memento was uploaded
+        allOf:
+          - $ref: '#/definitions/ServerTimestamp'
+      visibility: 
+        type: string
+        description: Visibility of the picture
+        example: family
+        enum:
+          - family
+          - friends
+          - residents
+      url:
+        type: string
+        format: url
+      mimeType: 
+        type: string
+        example: image/jpeg
+          
+  User:
+    type: object  
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+      name:
+        type: string  
+        description: Name of the user
+      role:
+        type: string  
+        description: Role of the user
+        example: resident          
+  
+  ResourceId:
+    type: integer
+    format: int32
+    example: 1
+  ServerTimestamp:
+    type: "string"
+    format: "date-time"
+  UserTimestamp:
+    type: "string"
+    format: "date-time"
+  CartellaId:
+    type: "integer"
+    example: "11"
+  Error:
+    type: object    
+    properties:
+      status:
+        type: "integer"
+        minimum: 100.0
+        maximum: 600.0
+      error:
+        type: "string"
+parameters:
+  limitCollection:
+    name: "limit"
+    in: "query"
+    description: "Max number of records to return"
+    required: false
+    type: "integer"
+    format: "int32"
+  skipCollection:
+    name: "skip"
+    in: "query"
+    description: "Number of records to skip"
+    required: false
+    type: "integer"
+    format: "int32"
+responses:
+  AccessForbidden:
+    description: "Access forbidden, invalid authorisation header"
+    schema:
+      $ref: "#/definitions/Error"
+  BadRequest:
+    description: "Request was sent in incorrect format"
+    schema:
+      $ref: "#/definitions/Error"
+  InvalidDataError:
+    description: "Invalid data was sent"
+    schema:
+      $ref: "#/definitions/Error"
+  NotFound:
+    description: "Resource was not found"
+    schema:
+      $ref: "#/definitions/Error"        
+        
+        
