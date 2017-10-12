@@ -14,7 +14,7 @@ info:
   description: |
     This is an **example** API to demontstrate features of OpenAPI specification
     # Introduction
-    This specification is intended to to be a good starting point for describint your API in 
+    This specification is intended to be a good starting point for describing your API in 
     [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
     It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
     [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
@@ -30,16 +30,15 @@ info:
 
   termsOfService: 'https://example.com/terms/' # [Optional] Replace with an URL to your ToS
   contact:
-    email: contact@example.com # [Optional] Replace with your contact email
-    url: 'http://example.com/contact' # [Optional] Replace with link to your contact form
+    email: fj.ibarracaceres@unitn.it
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
   #x-logo:
     #url: 'https://apis.guru/openapi-template/logo.png'
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
+#externalDocs:
+  #description: Find out how to create Github repo for your OpenAPI spec.
+  #url: 'https://github.com/Rebilly/generator-openapi-repo'
 produces:
   # List of mime types your API endpoins can return.
   # This is a global default. You can OVERWRITE it in each specific operation.
@@ -59,10 +58,14 @@ consumes:
 # A list of tags used by the specification with additional metadata.
 # The order of the tags can be used to reflect on their order by the parsing tools.
 tags:
-  - name: Collection
+  - name: collection
     description: APIs for collecting and digitizing mementos
-  - name: Reminiscence
+  - name: reminiscence
     description: APIs for reminiscence
+  - name: social
+    description: APIs for the social features
+  - name: collegamenti
+    description: APIs for discovering common life points
 
 # Holds the relative paths to the individual endpoints. The path is appended to the
 # basePath in order to construct the full URL. 
@@ -70,7 +73,7 @@ paths:
   '/memento/{mementoId}': # path parameter in curly braces
     get:
       tags:
-        - Collection
+        - collection
       summary: Get memento by id
       description: | 
         Retrieves a memento referenced by the URI.
@@ -98,7 +101,7 @@ paths:
           $ref: '#/responses/NotFound'
     put:
       tags:
-        - Collection
+        - collection
       summary: Modify memento by id
       description: | 
         Updates a memento referenced by the URI.
@@ -128,10 +131,10 @@ paths:
         404:
           $ref: '#/responses/NotFound'          
     
-  '/mementos': # path parameter in curly braces
+  '/mementos':
     post:
       tags:
-        - Collection
+        - collection
       summary: Create memento
       description: | 
          Creates a new memento
@@ -160,7 +163,7 @@ paths:
           $ref: '#/responses/InvalidDataError' 
     get:
       tags:
-        - Collection
+        - collection
       summary: Get mementos
       description: | 
         Retrieves a memento referenced by the URI.
@@ -185,10 +188,782 @@ paths:
           $ref: '#/responses/BadRequest'           
         401:
           $ref: '#/responses/AccessForbidden'
+          
+  '/post/{postId}': # path parameter in curly braces
+    get:
+      tags:
+        - reminiscence
+      summary: Get post by id
+      description: | 
+        Retrieves a post referenced by the URI.
+      operationId: getPostById
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - name: postId
+          in: path
+          description: The post id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+    put:
+      tags:
+        - reminiscence
+      summary: Modify post by id
+      description: | 
+        Updates a post referenced by the URI.
+      operationId: updatePostById
+      x-swagger-router-controller: Collection
+      parameters:
+        - name: postId
+          in: path
+          description: The post id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Updates to the post
+          required: true
+          schema:
+            $ref: '#/definitions/Post'
+      consumes:
+        - application/json
+      responses: # list of responses
+        204:
+          description: Success
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+  
+  
+  '/posts':
+    post:
+      tags:
+        - reminiscence
+      summary: Create a post
+      description: | 
+         Creates a new post
+      operationId: postPost
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - in: body
+          name: body
+          description: Updates to the post
+          required: true
+          schema:
+            $ref: '#/definitions/Memento'
+      produces:
+        - application/json
+      responses: # list of responses
+        201:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Memento'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+        422:
+          $ref: '#/responses/InvalidDataError' 
+    get:
+      tags:
+        - reminiscence
+      summary: Get posts
+      description: | 
+        Retrieves a post referenced by the URI.
+      operationId: getPosts
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+          
+  '/posts/favourites':
+    get:
+      tags:
+        - reminiscence
+      summary: Get list of favourite posts
+      description: | 
+        Retrieves a list of the favourite posts of the user.
+      operationId: getFavouritePosts
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
 
+  '/post/{postId}/comments':
+    get:
+      tags:
+      - social
+      summary: Get comments on a post
+      operationId: getComments
+      description: |
+        Retrieves the list of comments on a post         
+      produces:
+      - application/json
+      parameters:
+      - name: postId
+        in: path
+        description: Id of the post
+        required: true
+        type: string
+        format: uuid   
+      responses:
+        200:
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Comment' 
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound' 
+    post:
+      tags:
+        - social
+      summary: Make a comment on a post
+      description: | 
+         Creates a new comment on a post
+      operationId: postComment
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - name: postId
+          in: path
+          description: Id of the post
+          required: true
+          type: string
+          format: uuid
+        - in: body
+          name: body
+          description: Comment to the post
+          required: true
+          schema:
+            $ref: '#/definitions/Comment'
+      produces:
+        - application/json
+      responses: # list of responses
+        201:
+          description: Success
+          headers:
+            Location:
+              type: string
+              format: uri
+              description: URI to the updated post
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+        422:
+          $ref: '#/responses/InvalidDataError'
+          
+  '/post/{postId}/like':
+    post:
+      tags:
+        - social
+      summary: Give a like to a post
+      description: | 
+         Add a like a post
+      operationId: postLike
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - name: postId
+          in: path
+          description: Id of the post
+          required: true
+          type: string
+          format: uuid
+        #- in: body
+        #  name: body
+        #  description: Comment to the post
+        #  required: true
+        #  schema:
+        #    $ref: '#/definitions/Comment'
+      produces:
+        - application/json
+      responses: # list of responses
+        201:
+          description: Success
+          headers:
+            Location:
+              type: string
+              format: uri
+              description: URI to updated post
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+        422:
+          $ref: '#/responses/InvalidDataError'
+          
+  '/notifications':
+    get:
+      tags:
+        - social
+      summary: Get list of post notifications
+      description: | 
+        Retrieves a list of posts which have been recently commented or liked.
+      operationId: getPostNotifications
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+          
+  '/albums/places':
+    get:
+      tags:
+        - reminiscence
+      summary: Get list of albums related to places
+      description: | 
+        Retrieves a list of albums related to the places in posts.
+      operationId: getPlaceAlbums
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/PlaceAlbum'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+          
+  '/albums/place/{albumId}':
+    get:
+      tags:
+      - reminiscence
+      summary: Get the list of posts in the place album
+      operationId: getPlaceAlbumPosts
+      x-swagger-router-controller: Collection
+      description: |
+        Retrieves the list of posts included in the album of the place specified.
+      produces:
+      - application/json
+      parameters:
+      - name: albumId
+        in: path
+        description: Id of the album
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type : array
+            items :
+              $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+  
+  '/albums/time_periods':
+    get:
+      tags:
+        - reminiscence
+      summary: Get list of albums related to time periods
+      description: | 
+        Retrieves a list of albums related to the time periods in posts.
+      operationId: getTimePeriodAlbums
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/PersonAlbum'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+          
+  '/albums/time_period/{albumId}':
+    get:
+      tags:
+      - reminiscence
+      summary: Get the list of posts in the time period album
+      operationId: getTimePeriodAlbumPosts
+      x-swagger-router-controller: Collection
+      description: |
+        Retrieves the list of posts included in the album of the time period specified.
+      produces:
+      - application/json
+      parameters:
+      - name: albumId
+        in: path
+        description: Id of the album
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type : array
+            items :
+              $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+  
+  '/albums/persons':
+    get:
+      tags:
+        - reminiscence
+      summary: Get list of albums related to persons
+      description: | 
+        Retrieves a list of albums related to the persons in posts.
+      operationId: getPeopleAlbums
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/TimePeriodAlbum'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+          
+  '/albums/person/{albumId}':
+    get:
+      tags:
+      - reminiscence
+      summary: Get the list of posts in the person album
+      operationId: getPersonAlbumPosts
+      x-swagger-router-controller: Collection
+      description: |
+        Retrieves the list of posts included in the album of the person specified.
+      produces:
+      - application/json
+      parameters:
+      - name: albumId
+        in: path
+        description: Id of the album
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type : array
+            items :
+              $ref: '#/definitions/Post'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+          
+  '/connections':
+    get:
+      tags:
+        - collegamenti
+      summary: Get the list of connections between users
+      description: | 
+         Retrieves a list of connections based on common life points between users.
+      operationId: getConnections
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/Connection'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+          
+  '/connection/{connectionId}': # path parameter in curly braces
+    get:
+      tags:
+        - collegamenti
+      summary: Get connection by id
+      description: | 
+        Retrieves a connection referenced by the URI.
+      operationId: getConnectionById
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - name: connectionId
+          in: path
+          description: The connection id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Connection'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+    put:
+      tags:
+        - collegamenti
+      summary: Modify connection by id
+      description: | 
+        Updates a connection referenced by the URI.
+      operationId: updateConnectionById
+      x-swagger-router-controller: Collection
+      parameters:
+        - name: connectionId
+          in: path
+          description: The connection id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Updates to the connection
+          required: true
+          schema:
+            $ref: '#/definitions/Connection'
+      consumes:
+        - application/json
+      responses: # list of responses
+        204:
+          description: Success
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+  
 # An object to hold data types that can be consumed and produced by operations.
 # These data types can be primitives, arrays or models.
 definitions:
+  ResourceId:
+    type: integer
+    format: int32
+    example: 1
+    
+  ServerTimestamp:
+    type: "string"
+    format: "date-time"
+    
+  UserTimestamp:
+    type: "string"
+    format: "date-time"
+    
+  #CartellaId:
+    #type: "integer"
+    #example: "11"
+    
+  Error:
+    type: object    
+    properties:
+      status:
+        type: "integer"
+        minimum: 100.0
+        maximum: 600.0
+      error:
+        type: "string"
+        
+  User:
+    type: object  
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      name:
+        type: string  
+        description: Name of the user
+      role:
+        type: string  
+        description: Role of the user
+        example: resident 
+      defaultVisibility: 
+        type: string
+        description: Default visibility of user content
+        example: family
+        enum:
+          - private
+          - family
+          - friends
+          - residents
+          - public
+        
+  Profile:
+    type: object  
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      birthday:
+        description: Date of birth of the user
+        allOf: 
+          - $ref: '#/definitions/UserTimestamp'
+      hometown:
+        description: Indicates the city of origin of the user
+        type: string
+      maritalStatus:
+        description: Indicates the marital status of the user
+        type: string
+        enum:
+        - single
+        - married
+        - remarried
+        - separated
+        - divorced
+        - widowed
+      relativeCount:
+        description: Indicates the number of relatives a user has
+        type: integer
+      user:
+        $ref: '#/definitions/User'
+        
+  #ProfilePermittion:
+  #  type: object
+  #  properties:
+  #    user:
+  #      description: The user who has the permission 
+  #      $ref: '#/definitions/User'
+  #    profile:
+  #      description: The profile to which the permission applies
+  #      $ref: '#/definitions/Profile'
+  #    isOwner:
+  #      description: Indicates whether the user is the owner of the profile
+  #      type: boolean
+  #    canView:
+  #      description: Indicates whether the permission allows to view content from the profile
+  #      type: boolean
+  #    canEdit:
+  #      description: Indicates whether the permission allows to edit content from the profile
+  #      type: boolean
+  #    canCreate:
+  #      description: Indicates whether the permission allows to add content to the profile
+  #      type: boolean
+  #    canDelete:
+  #      description: Indicates whether the permission allows to delete content to the profile
+  #      type: boolean
+        
+  Organization:
+    type: object
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      name:
+        description: The name of the organization
+        type: string
+      description:
+        description: A description of the organization
+        type: string
+        
+  Membership:
+    type: object
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      createdOn:
+        description: Datetime when the membership was created
+        readOnly: true
+        allOf: 
+          - $ref: '#/definitions/ServerTimestamp'
+      lastUpdatedOn:
+        description: Datetime when the membership was updated
+        readOnly: true
+        allOf: 
+          - $ref: '#/definitions/ServerTimestamp'
+      role:
+        description: The role of the user in the organization
+        type: string
+        example: resident
+        enum:
+        - staff
+        - volunteer
+        - resident
+      status:
+        description: The status of the membership
+        type: string
+        example: active
+        enum:
+        - active
+        - suspended
+        - finished
+      member:
+        $ref: '#/definitions/User'
+  
+  Relationship:
+    type: object
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      relationshipType:
+        description: The type of relationship between the users
+        type: string
+        enum:
+        - relative
+        - friend
+        - acquaintance
+        - peers
+      relationshipName:
+        description: The name describing the relationship
+        type: string
+      
+  Connection:
+    type: object
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      discoveredOn:
+        description: Datetime the connection was discovered
+        allOf:
+          - $ref: '#/definitions/ServerTimestamp'
+      lastUsedOn:
+        description: Datetime the connection was last used
+        allOf:
+          - $ref: '#/definitions/ServerTimestamp'
+      description:
+        description: A description of the connection between users
+        type: string
+      connectionType:
+        description: The common aspect connecting the users
+        type: string
+        enum:
+        - place
+        - time
+        - person
+        - activity
+        - event
+        - interest
+      score:
+        description: The score given to the connection on a scale from 1 to 5
+        type: integer
+  
   Memento:
     type: object
     properties: 
@@ -202,57 +977,203 @@ definitions:
         description: Datetime the memento was uploaded
         allOf:
           - $ref: '#/definitions/ServerTimestamp'
+      description:
+        description: A description of the memento
+        example: wedding video
       visibility: 
         type: string
         description: Visibility of the picture
         example: family
         enum:
+          - private
           - family
           - friends
           - residents
+          - public
       url:
         type: string
         format: url
       mimeType: 
         type: string
         example: image/jpeg
-          
-  User:
-    type: object  
+  
+  Post:
+    type: object
     properties:
       id:
         allOf:
           - $ref: '#/definitions/ResourceId'
-      name:
-        type: string  
-        description: Name of the user
-      role:
-        type: string  
-        description: Role of the user
-        example: resident          
-  
-  ResourceId:
-    type: integer
-    format: int32
-    example: 1
-  ServerTimestamp:
-    type: "string"
-    format: "date-time"
-  UserTimestamp:
-    type: "string"
-    format: "date-time"
-  CartellaId:
-    type: "integer"
-    example: "11"
-  Error:
-    type: object    
+          - readOnly: true
+      createdOn:
+        description: Datetime when the post was created
+        readOnly: true
+        allOf: 
+          - $ref: '#/definitions/ServerTimestamp'
+      createdBy:
+        $ref: '#/definitions/User'
+      lastUpdateOn:
+        readOnly: true
+        description: Datetime when the post was updated
+        allOf: 
+          - $ref: '#/definitions/ServerTimestamp'
+      lastUpdateBy:
+        $ref: '#/definitions/User'
+      visibility: 
+        type: string
+        description: Visibility of the post
+        example: family
+        enum:
+          - private
+          - family
+          - friends
+          - residents
+          - public
+      story:
+        description: The story related to the post
+        type: string
+      where:
+        description: The place related to the post, as registered by the user
+        type: string
+      when:
+        description: The time (date or period) related to the post, as registered by the user
+        type: string
+      who:
+        description: The people related to the post, as registered by the user
+        type: string
+      tags:
+        description: Space separated keywords related to the post
+        type: string
+      commentCount:
+        description: Indicates the number of comments made on the post
+        type: integer
+      likeCount:
+        description: Indicates the number of users who liked the post
+        type: integer
+      comments:
+        description: The comments made on the post
+        type: array
+        items:
+          $ref: '#/definitions/Comment'
+      likes:
+        description: The likes given to the post
+        type: array
+        items:
+          $ref: '#/definitions/Like'
+      userInPost:
+        description: Indicates whether the user appears in the post
+        type: boolean
+      isFavourite:
+        description: Indicates whether the post is a user favourite
+        type: boolean
+      isEmotional:
+        description: Indicates whether the post can trigger an emotional response from the user
+        type: boolean
+      
+  Comment:
+    type: object
     properties:
-      status:
-        type: "integer"
-        minimum: 100.0
-        maximum: 600.0
-      error:
-        type: "string"
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      createdOn:
+        description: Datetime when the comment was created
+        allOf: 
+          - $ref: '#/definitions/ServerTimestamp'
+      createdBy:
+        $ref: '#/definitions/User'
+      commentText:
+        description: The text of the comment
+        type: string
+  
+  Like:
+    type: object
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      createdBy:
+        readOnly: true
+        $ref: '#/definitions/User'
+        
+  Album:
+    type: object
+    properties:
+      id:
+        allOf:
+          - $ref: '#/definitions/ResourceId'
+          - readOnly: true
+      name:
+        description: The name of the album
+        type: string
+      createdOn:
+        description: Datetime when the album was created
+        allOf: 
+          - $ref: '#/definitions/ServerTimestamp'
+      postCount:
+        description: Indicates the number of posts in the album
+        type: integer
+      score:
+        description: The score given to the album on a scale from 1 to 5
+        type: integer
+      posts:
+        type: array
+        description: The posts that constitute the album
+        items:
+          $ref: '#/definitions/Post'
+          
+  PlaceAlbum:
+    type: object
+    allOf:
+      - $ref: '#/definitions/Album'
+      - type: object
+        properties:
+          placeName:
+            description: The name of the place
+            type: string
+          country:
+            description: The country of the place
+            type: string
+          city:
+            description: The city of the place
+            type: string
+          coordinateLat:
+            description: The latitude component of the coordinates of the place
+            type: number
+          coordinateLong:
+            description: The longitude component of the coordinates of the place
+            type: number
+            
+  TimePeriodAlbum:
+    type: object
+    allOf:
+      - $ref: '#/definitions/Album'
+      - type: object
+        properties:
+          periodName:
+            description: The name of the period
+            type: string
+          startDate:
+            description: The starting date of the period      
+            allOf: 
+              - $ref: '#/definitions/UserTimestamp'
+          endDate:
+            description: The ending date of the period
+            allOf: 
+              - $ref: '#/definitions/UserTimestamp'
+              
+  PersonAlbum:
+    type: object
+    allOf:
+      - $ref: '#/definitions/Album'
+      - type: object
+        properties:
+          personName:
+            description: The name of the person
+            type: string
+  
+  
 parameters:
   limitCollection:
     name: "limit"
@@ -261,6 +1182,7 @@ parameters:
     required: false
     type: "integer"
     format: "int32"
+    
   skipCollection:
     name: "skip"
     in: "query"
@@ -268,19 +1190,23 @@ parameters:
     required: false
     type: "integer"
     format: "int32"
+    
 responses:
   AccessForbidden:
     description: "Access forbidden, invalid authorisation header"
     schema:
       $ref: "#/definitions/Error"
+      
   BadRequest:
     description: "Request was sent in incorrect format"
     schema:
       $ref: "#/definitions/Error"
+      
   InvalidDataError:
     description: "Invalid data was sent"
     schema:
       $ref: "#/definitions/Error"
+      
   NotFound:
     description: "Resource was not found"
     schema:
