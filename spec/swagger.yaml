@@ -66,6 +66,8 @@ tags:
     description: APIs for the social features
   - name: collegamenti
     description: APIs for discovering common life points
+  - name: user
+    description: APIs for profile and relationship management
 
 # Holds the relative paths to the individual endpoints. The path is appended to the
 # basePath in order to construct the full URL. 
@@ -166,7 +168,7 @@ paths:
         - collection
       summary: Get mementos
       description: | 
-        Retrieves a memento referenced by the URI.
+        Retrieves a list of all the mementos of the user.
       operationId: getMementos
       x-swagger-router-controller: Collection
     
@@ -250,7 +252,6 @@ paths:
         404:
           $ref: '#/responses/NotFound'
   
-  
   '/posts':
     post:
       tags:
@@ -286,7 +287,7 @@ paths:
         - reminiscence
       summary: Get posts
       description: | 
-        Retrieves a post referenced by the URI.
+        Retrieves a list of all the posts of the user.
       operationId: getPosts
       x-swagger-router-controller: Collection
     
@@ -752,6 +753,175 @@ paths:
           $ref: '#/responses/AccessForbidden'   
         404:
           $ref: '#/responses/NotFound'
+          
+  '/profile': # path parameter in curly braces
+    get:
+      tags:
+        - user
+      summary: Get the profile of the currenty logged in user
+      description: | 
+        Retrieves the profile of the currently logged in user.
+      operationId: getMyProfile
+      x-swagger-router-controller: Collection
+      
+      produces:
+        - application/json
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Profile'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+    put:
+      tags:
+        - user
+      summary: Modify the profile of the currently logged in user
+      description: | 
+        Updates a the profile of the currently logger in user.
+      operationId: updateMyProfile
+      x-swagger-router-controller: Collection
+      parameters:
+        - in: body
+          name: body
+          description: Updates to the profile
+          required: true
+          schema:
+            $ref: '#/definitions/Profile'
+      consumes:
+        - application/json
+      responses: # list of responses
+        204:
+          description: Success
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+          
+  '/relationship/{relationshipId}': # path parameter in curly braces
+    get:
+      tags:
+        - user
+      summary: Get relationship by id
+      description: | 
+        Retrieves a relationship referenced by the URI.
+      operationId: getRelationshipById
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - name: relationshipId
+          in: path
+          description: The relationship id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Relationship'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+    put:
+      tags:
+        - user
+      summary: Modify relationship by id
+      description: | 
+        Updates a relationship referenced by the URI.
+      operationId: updateRleationshipById
+      x-swagger-router-controller: Collection
+      parameters:
+        - name: relationshipId
+          in: path
+          description: The relationship id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Updates to the relationship
+          required: true
+          schema:
+            $ref: '#/definitions/Relationship'
+      consumes:
+        - application/json
+      responses: # list of responses
+        204:
+          description: Success
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'   
+        404:
+          $ref: '#/responses/NotFound'
+          
+  '/relationships':
+    post:
+      tags:
+        - user
+      summary: Create a relationship
+      description: | 
+         Creates a new relationship.
+      operationId: postRelationship
+      x-swagger-router-controller: Collection
+      
+      parameters:
+        - in: body
+          name: body
+          description: Updates to the relationship
+          required: true
+          schema:
+            $ref: '#/definitions/Relationship'
+      produces:
+        - application/json
+      responses: # list of responses
+        201:
+          description: Success
+          schema: # response schema can be specified for each response
+            $ref: '#/definitions/Relationship'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
+        422:
+          $ref: '#/responses/InvalidDataError' 
+    get:
+      tags:
+        - user
+      summary: Get relationships
+      description: | 
+        Retrieves all user relationships.
+      operationId: getRelationships
+      x-swagger-router-controller: Collection
+    
+      produces:
+        - application/json
+        
+      parameters:
+      - $ref: '#/parameters/limitCollection'
+      - $ref: '#/parameters/skipCollection'  
+        
+      responses: # list of responses
+        200:
+          description: Success
+          schema: # response schema can be specified for each response
+            type: array
+            items:
+              $ref: '#/definitions/Relationship'
+        400:
+          $ref: '#/responses/BadRequest'           
+        401:
+          $ref: '#/responses/AccessForbidden'
   
 # An object to hold data types that can be consumed and produced by operations.
 # These data types can be primitives, arrays or models.
@@ -863,55 +1033,55 @@ definitions:
   #      description: Indicates whether the permission allows to delete content to the profile
   #      type: boolean
         
-  Organization:
-    type: object
-    properties:
-      id:
-        allOf:
-          - $ref: '#/definitions/ResourceId'
-          - readOnly: true
-      name:
-        description: The name of the organization
-        type: string
-      description:
-        description: A description of the organization
-        type: string
+  #Organization:
+  #  type: object
+  #  properties:
+  #    id:
+  #      allOf:
+  #        - $ref: '#/definitions/ResourceId'
+  #        - readOnly: true
+  #    name:
+  #      description: The name of the organization
+  #      type: string
+  #    description:
+  #      description: A description of the organization
+  #      type: string
         
-  Membership:
-    type: object
-    properties:
-      id:
-        allOf:
-          - $ref: '#/definitions/ResourceId'
-          - readOnly: true
-      createdOn:
-        description: Datetime when the membership was created
-        readOnly: true
-        allOf: 
-          - $ref: '#/definitions/ServerTimestamp'
-      lastUpdatedOn:
-        description: Datetime when the membership was updated
-        readOnly: true
-        allOf: 
-          - $ref: '#/definitions/ServerTimestamp'
-      role:
-        description: The role of the user in the organization
-        type: string
-        example: resident
-        enum:
-        - staff
-        - volunteer
-        - resident
-      status:
-        description: The status of the membership
-        type: string
-        example: active
-        enum:
-        - active
-        - suspended
-        - finished
-      member:
-        $ref: '#/definitions/User'
+  #Membership:
+  #  type: object
+  #  properties:
+  #    id:
+  #      allOf:
+  #        - $ref: '#/definitions/ResourceId'
+  #        - readOnly: true
+  #    createdOn:
+  #      description: Datetime when the membership was created
+  #      readOnly: true
+  #      allOf: 
+  #        - $ref: '#/definitions/ServerTimestamp'
+  #    lastUpdatedOn:
+  #      description: Datetime when the membership was updated
+  #      readOnly: true
+  #      allOf: 
+  #        - $ref: '#/definitions/ServerTimestamp'
+  #    role:
+  #      description: The role of the user in the organization
+  #      type: string
+  #      example: resident
+  #      enum:
+  #      - staff
+  #      - volunteer
+  #      - resident
+  #    status:
+  #      description: The status of the membership
+  #      type: string
+  #      example: active
+  #      enum:
+  #      - active
+  #      - suspended
+  #      - finished
+  #    member:
+  #      $ref: '#/definitions/User'
   
   Relationship:
     type: object
@@ -963,6 +1133,11 @@ definitions:
       score:
         description: The score given to the connection on a scale from 1 to 5
         type: integer
+      posts:
+        type: array
+        description: The posts that constitute the album
+        items:
+          $ref: '#/definitions/Post'
   
   Memento:
     type: object
@@ -1094,7 +1269,6 @@ definitions:
           - $ref: '#/definitions/ResourceId'
           - readOnly: true
       createdBy:
-        readOnly: true
         $ref: '#/definitions/User'
         
   Album:
