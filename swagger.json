@@ -1,0 +1,3015 @@
+{
+  "swagger": "2.0",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "host": "example.com",
+  "basePath": "/api/v1",
+  "info": {
+    "description": "\n# Introduction\nThis document describes the programmatic interface of Storygram.\n",
+    "version": "1.0.0",
+    "title": "Storygram API",
+    "termsOfService": "https://example.com/terms/",
+    "contact": {
+      "email": "fj.ibarracaceres@unitn.it"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "produces": [
+    "application/json",
+    "application/xml",
+    "text/csv"
+  ],
+  "consumes": [
+    "application/json",
+    "application/xml"
+  ],
+  "tags": [
+    {
+      "name": "collection",
+      "description": "APIs for collecting and digitizing mementos. We use the term mementos to refer to items that are associated to memories. These items could be pictures, videos, audio. The mementos contain information as well as stories, and can be grouped into automatic albums based on common information such as place (e.g. all mementos related to Rome)."
+    },
+    {
+      "name": "social",
+      "description": "APIs for the social features. Social features include the management of posts (shared mementos) as well as the reactions to posts, such as comments and likes."
+    },
+    {
+      "name": "connections",
+      "description": "APIs for discovering common life points. Common life points are arranged as connections which can be used to make user aware of aspects in common with other residents and to suggest friendships."
+    },
+    {
+      "name": "user",
+      "description": "APIs for the management of user profile, permission and  relationship management"
+    },
+    {
+      "name": "logs",
+      "description": "APIs for management and logging of user activity."
+    }
+  ],
+  "paths": {
+    "/mementos": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get mementos",
+        "description": "Retrieves a list of the mementos of the user. The hasStory parameter can be used to filter between mementos with and without stories.\n",
+        "operationId": "getMementos",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "hasStory",
+            "in": "query",
+            "description": "Determines whether to fetch mementos with stories",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "isFavourite",
+            "in": "query",
+            "description": "Determines whether to fetch favourite mementos",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "mementos": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Memento"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Create a memento",
+        "description": "Creates a new memento\n",
+        "operationId": "postMemento",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The memento to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Memento"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Memento"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/memento/{mementoId}": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get memento by id",
+        "description": "Retrieves a memento referenced by the URI.\n",
+        "operationId": "getMementoById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "mementoId",
+            "in": "path",
+            "description": "The memento id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Memento"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Modify memento by id",
+        "description": "Updates a memento referenced by the URI.\n",
+        "operationId": "updateMementoById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "mementoId",
+            "in": "path",
+            "description": "The memento id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the memento",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Memento"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/posts": {
+      "get": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Get posts",
+        "description": "Retrieves a list of all the posts of currently managed profile.\n",
+        "operationId": "getPosts",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "isFavourite",
+            "in": "query",
+            "description": "Determines whether to fetch favourite posts of the current profile",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Determines which types of posts to fetch, between friends or organization of the currently managed profile",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "friends",
+              "organization"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "posts": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Post"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Create a post",
+        "description": "Creates a new post\n",
+        "operationId": "postPost",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/post/{postId}": {
+      "get": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Get post by id",
+        "description": "Retrieves a post referenced by the URI.\n",
+        "operationId": "getPostById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "The post id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Modify post by id",
+        "description": "Updates a post referenced by the URI.\n",
+        "operationId": "updatePostById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "The post id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/post/{postId}/comments": {
+      "get": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Get comments on a post",
+        "operationId": "getComments",
+        "description": "Retrieves the list of comments on a post\n",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "Id of the post",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "comments": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Comment"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Make a comment on a post",
+        "description": "Creates a new comment on a post\n",
+        "operationId": "postComment",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "Id of the post",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Comment to the post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Comment"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "URI to the updated post"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/post/{postId}/likes": {
+      "get": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Get likes on a post",
+        "operationId": "getLikes",
+        "description": "Retrieves the list of likes on a post\n",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "Id of the post",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "likes": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Like"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Give a like to a post",
+        "description": "Add a like a post\n",
+        "operationId": "postLike",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "Id of the post",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Like to the post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Like"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "URI to updated post"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "social"
+        ],
+        "summary": "Get list of notifications",
+        "description": "Retrieves a list of notifications of the currently managed profile.\n",
+        "operationId": "getNotifications",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "notifications": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/NotificationItem"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      }
+    },
+    "/albums": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get list of albums",
+        "description": "Retrieves a list of albums of the currently managed profile.\n",
+        "operationId": "getAlbums",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Type of albums to return",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "places",
+              "time",
+              "people"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "albums": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Album"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Create an album",
+        "description": "Creates a new empty album.\n",
+        "operationId": "createAlbum",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The album to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Album"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Album"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/albums/places": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get list of albums related to places",
+        "description": "Retrieves a list of albums related to the places in posts.\n",
+        "operationId": "getPlacesAlbums",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "albums": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/PlaceAlbum"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      }
+    },
+    "/albums/periods": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get list of albums related to time periods",
+        "description": "Retrieves a list of albums related to the time periods in posts.\n",
+        "operationId": "getTimePeriodAlbums",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "albums": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/TimePeriodAlbum"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      }
+    },
+    "/albums/people": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get list of albums related to persons",
+        "description": "Retrieves a list of albums related to the persons in posts.\n",
+        "operationId": "getPeopleAlbums",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "albums": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/PersonAlbum"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      }
+    },
+    "/album/{albumId}": {
+      "get": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Get album by id",
+        "description": "Retrieves an album reference by the URI.\n",
+        "operationId": "getAlbumById",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "albumId",
+            "in": "path",
+            "description": "The album id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Album"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "collection"
+        ],
+        "summary": "Modify album by id",
+        "description": "Updates an album referenced by the URI.\n",
+        "operationId": "updateAlbumById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "albumId",
+            "in": "path",
+            "description": "The album id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the album",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Album"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/connections": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Get the list of connections between users",
+        "description": "Retrieves a list of connections based on common life points between users.\n",
+        "operationId": "getConnections",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "connections": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Connection"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Create a connection",
+        "description": "Creates a new connection\n",
+        "operationId": "createConnection",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The connection to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Connection"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Connection"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/connection/{connectionId}": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Get connection by id",
+        "description": "Retrieves a connection referenced by the URI.\n",
+        "operationId": "getConnectionById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "The connection id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Connection"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Modify connection by id",
+        "description": "Updates a connection referenced by the URI.\n",
+        "operationId": "updateConnectionById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "The connection id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the connection",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Connection"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/connection/{connectionId}/posts": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "Get the posts of a connection",
+        "description": "Retrieves a list of the posts related to a connection.\n",
+        "operationId": "getConnectionPosts",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "connectionId",
+            "in": "path",
+            "description": "The connection id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "posts": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Post"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Makes a login request",
+        "description": "Makes a login request bt providing username and password. If successful, it returns the logged in user profile.\n",
+        "operationId": "loginUser",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The user credentials, composed of username and password",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                }
+              }
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "$ref": "#/definitions/Profile"
+                },
+                "memberships": {
+                  "type": "object",
+                  "properties": {
+                    "pageInfo": {
+                      "$ref": "#/definitions/PageInfo"
+                    },
+                    "userMemberships": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Membership"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Makes a logout request",
+        "description": "Makes a logout request on behalf of the currently logged in user.\n",
+        "operationId": "logoutUser",
+        "x-swagger-router-controller": "Collection",
+        "responses": {
+          "201": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/logs": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Get log records",
+        "description": "Retrieves a list of log records.\n",
+        "operationId": "getLogRecords",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Filters the log by user id",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "profileId",
+            "in": "query",
+            "description": "Filters the log by profile id",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Filters the log by starting time defined as timestamp",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Filters the log by end time defined as timestamp",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "activity",
+            "in": "query",
+            "description": "Filters the log by activity",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "screen",
+            "in": "query",
+            "description": "Filters the log by screen",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "tos:tos": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Memento"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Create a log record",
+        "description": "Creates a new log record\n",
+        "operationId": "createLogRecord",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The record to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LogRecord"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LogRecord"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get the profile of the currenty logged in user",
+        "description": "Retrieves the profile of the currently logged in user.\n",
+        "operationId": "getMyProfile",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Modify the profile of the currently logged in user",
+        "description": "Updates a the profile of the currently logger in user.\n",
+        "operationId": "updateMyProfile",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the profile",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/profile/{profileId}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get the profile by id",
+        "description": "Retrieves the profile referenced by the URI.\n",
+        "operationId": "getProfile",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "profileId",
+            "in": "path",
+            "description": "The profile id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Modify the profile by id",
+        "description": "Updates the profile referenced by the URI.\n",
+        "operationId": "updateProfile",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profileId",
+            "description": "The profile id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the profile",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/profiles/managed": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get the profiles managed of the currenty logged in user",
+        "description": "Retrieves the profiles managed by the currently logged in user.\n",
+        "operationId": "getMyProfiles",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "organization",
+            "in": "query",
+            "description": "Filter the profiles managed within the organization specified in the URI",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "profiles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Profile"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/permissions": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Create a permission",
+        "description": "Creates a new permission\n",
+        "operationId": "createPermission",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The new permission",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ManagementPermission"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ManagementPermission"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/permission/{permissionId}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get permission by id",
+        "description": "Retrieves a permission referenced by the URI.\n",
+        "operationId": "getPermissionById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "permissionId",
+            "in": "path",
+            "description": "The permission id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ManagementPermission"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Modify permission by id",
+        "description": "Updates a permission referenced by the URI.\n",
+        "operationId": "updatePermissionById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "permissionId",
+            "in": "path",
+            "description": "The permission id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the permission",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ManagementPermission"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/memberships": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get the memberships of the currently logged in user",
+        "description": "Retrieves a list of all the memberships of the user.\n",
+        "operationId": "getMemeberships",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "memberships": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "membership": {
+                        "$ref": "#/definitions/Membership"
+                      },
+                      "member": {
+                        "$ref": "#/definitions/User"
+                      },
+                      "organization": {
+                        "$ref": "#/definitions/Organization"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Create membership",
+        "description": "Creates a new membership\n",
+        "operationId": "createMembership",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The new membership",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Membership"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Membership"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/membership/{membershipId}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get membership by id",
+        "description": "Retrieves a membership referenced by the URI.\n",
+        "operationId": "getMembershipById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "membershipId",
+            "in": "path",
+            "description": "The membership id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Membership"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Modify membership by id",
+        "description": "Updates a membership referenced by the URI.\n",
+        "operationId": "updateMembershipById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "membershipId",
+            "in": "path",
+            "description": "The membership id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the membership",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Membership"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/relationships": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get relationships",
+        "description": "Retrieves all user relationships.\n",
+        "operationId": "getRelationships",
+        "x-swagger-router-controller": "Collection",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/pageCursor"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "The type of the relationship. Can be used to filter relationships by type.",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "relative",
+              "friend",
+              "acquaintance",
+              "peers"
+            ]
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "The status of the relationship. Can be used to managed friendship requests.",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "active",
+              "pending",
+              "suspended"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageInfo": {
+                  "$ref": "#/definitions/PageInfo"
+                },
+                "relationships": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Relationship"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Create a relationship",
+        "description": "Creates a new relationship.\n",
+        "operationId": "postRelationship",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the relationship",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Relationship"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Relationship"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "422": {
+            "$ref": "#/responses/InvalidDataError"
+          }
+        }
+      }
+    },
+    "/relationship/{relationshipId}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get relationship by id",
+        "description": "Retrieves a relationship referenced by the URI.\n",
+        "operationId": "getRelationshipById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "relationshipId",
+            "in": "path",
+            "description": "The relationship id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Relationship"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Modify relationship by id",
+        "description": "Updates a relationship referenced by the URI.\n",
+        "operationId": "updateRleationshipById",
+        "x-swagger-router-controller": "Collection",
+        "parameters": [
+          {
+            "name": "relationshipId",
+            "in": "path",
+            "description": "The relationship id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updates to the relationship",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Relationship"
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/AccessForbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResourceId": {
+      "type": "integer",
+      "format": "int32",
+      "example": 1
+    },
+    "ServerTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "UserTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "PageInfo": {
+      "type": "object",
+      "properties": {
+        "nextCursor": {
+          "type": "integer",
+          "description": "cursor to append to URL to move to the next page"
+        },
+        "prevCursor": {
+          "type": "integer",
+          "description": "cursor to append to URL to move to the previous page"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 600
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the user"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username of the user"
+        },
+        "lastLogin": {
+          "description": "The last time the user logged in",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UserTimestamp"
+            }
+          ]
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the user",
+          "example": "resident"
+        },
+        "defaultVisibility": {
+          "type": "string",
+          "description": "Default visibility of user content",
+          "example": "family",
+          "enum": [
+            "private",
+            "family",
+            "friends",
+            "residents",
+            "public"
+          ]
+        }
+      }
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "birthday": {
+          "description": "Date of birth of the user",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UserTimestamp"
+            }
+          ]
+        },
+        "lastUse": {
+          "description": "The last time the user profile was managed",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UserTimestamp"
+            }
+          ]
+        },
+        "hometown": {
+          "description": "Indicates the city of origin of the user",
+          "type": "string"
+        },
+        "picture": {
+          "description": "URL to the profile picture of the user",
+          "type": "string",
+          "format": "url"
+        },
+        "maritalStatus": {
+          "description": "Indicates the marital status of the user",
+          "type": "string",
+          "enum": [
+            "single",
+            "married",
+            "remarried",
+            "separated",
+            "divorced",
+            "widowed"
+          ]
+        },
+        "relativeCount": {
+          "description": "Indicates the number of relatives a user has",
+          "type": "integer"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "NotificationItem": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "description": "The notification text"
+        },
+        "object": {
+          "description": "The object to which the notification refers",
+          "type": "object"
+        },
+        "objectType": {
+          "description": "Indicates the type of object to which the notification refers",
+          "type": "string",
+          "enum": [
+            "post",
+            "relationship",
+            "permission",
+            "connection",
+            "album",
+            "membership",
+            "general"
+          ]
+        },
+        "IssuedBy": {
+          "$ref": "#/definitions/Profile",
+          "description": "If trigger by a user, the profile of the user who triggered the notification"
+        }
+      }
+    },
+    "LogRecord": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User",
+          "description": "The user who was logged in"
+        },
+        "profile": {
+          "$ref": "#/definitions/Profile",
+          "description": "The profile that was being managed"
+        },
+        "activity": {
+          "description": "A description of the activity performed",
+          "type": "string"
+        },
+        "screen": {
+          "description": "The screen where the activity took place",
+          "type": "string"
+        },
+        "activityStart": {
+          "description": "The time when the activity started",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UserTimestamp"
+            }
+          ]
+        },
+        "activityEnd": {
+          "description": "The time when the activity ended",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UserTimestamp"
+            }
+          ]
+        },
+        "duration": {
+          "description": "The duration of the activity in seconds",
+          "type": "integer"
+        }
+      }
+    },
+    "ManagementPermission": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User",
+          "description": "The user who has the permission"
+        },
+        "profile": {
+          "$ref": "#/definitions/Profile",
+          "description": "The profile to which the permission applies"
+        },
+        "isOwner": {
+          "description": "Indicates whether the user is the owner of the profile",
+          "type": "boolean"
+        },
+        "canView": {
+          "description": "Indicates whether the permission allows to view content from the profile",
+          "type": "boolean"
+        },
+        "canEdit": {
+          "description": "Indicates whether the permission allows to edit content from the profile",
+          "type": "boolean"
+        },
+        "canCreate": {
+          "description": "Indicates whether the permission allows to add content to the profile",
+          "type": "boolean"
+        },
+        "canDelete": {
+          "description": "Indicates whether the permission allows to delete content to the profile",
+          "type": "boolean"
+        }
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "name": {
+          "description": "The name of the organization",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the organization",
+          "type": "string"
+        }
+      }
+    },
+    "Membership": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "createdOn": {
+          "description": "Datetime when the membership was created",
+          "readOnly": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "lastUpdatedOn": {
+          "description": "Datetime when the membership was updated",
+          "readOnly": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "role": {
+          "description": "The role of the user in the organization",
+          "type": "string",
+          "example": "resident",
+          "enum": [
+            "staff",
+            "volunteer",
+            "resident"
+          ]
+        },
+        "status": {
+          "description": "The status of the membership",
+          "type": "string",
+          "example": "active",
+          "enum": [
+            "active",
+            "suspended",
+            "finished"
+          ]
+        },
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        }
+      }
+    },
+    "Relationship": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "relationshipType": {
+          "description": "The type of relationship between the users",
+          "type": "string",
+          "enum": [
+            "relative",
+            "friend",
+            "acquaintance",
+            "peers"
+          ]
+        },
+        "relationshipName": {
+          "description": "The name describing the relationship",
+          "type": "string"
+        },
+        "status": {
+          "description": "The status of the relationship",
+          "type": "string",
+          "example": "active",
+          "enum": [
+            "active",
+            "pending",
+            "suspended"
+          ]
+        }
+      }
+    },
+    "Connection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "discoveredOn": {
+          "description": "Datetime the connection was discovered",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "lastUsedOn": {
+          "description": "Datetime the connection was last used",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "description": {
+          "description": "A description of the connection between users",
+          "type": "string"
+        },
+        "connectionType": {
+          "description": "The common aspect connecting the users",
+          "type": "string",
+          "enum": [
+            "place",
+            "time",
+            "person",
+            "activity",
+            "event",
+            "interest"
+          ]
+        },
+        "score": {
+          "description": "The score given to the connection on a scale from 1 to 5",
+          "type": "integer"
+        },
+        "aspects": {
+          "description": "Aspects in common, or one aspect when filtered by aspects",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "people": {
+          "description": "People sharing the aspect, or one persone when filtered by person",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Profile"
+          }
+        },
+        "posts": {
+          "description": "The posts that constitute the connection",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Post"
+          }
+        }
+      }
+    },
+    "Memento": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "uploadedBy": {
+          "$ref": "#/definitions/User"
+        },
+        "uploadedTo": {
+          "$ref": "#/definitions/Profile"
+        },
+        "uploadedOn": {
+          "description": "Datetime the memento was uploaded",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the memento",
+          "example": "wedding video"
+        },
+        "story": {
+          "description": "The story related to the post",
+          "type": "string"
+        },
+        "place": {
+          "description": "The place related to the post, as registered by the user",
+          "type": "string"
+        },
+        "time": {
+          "description": "The time (date or period) related to the post, as registered by the user",
+          "type": "string"
+        },
+        "people": {
+          "description": "The people related to the post, as registered by the user",
+          "type": "string"
+        },
+        "isFavourite": {
+          "description": "Indicates whether the post is a user favourite",
+          "type": "boolean"
+        },
+        "isEmotional": {
+          "description": "Indicates whether the post can trigger an emotional response from the user",
+          "type": "boolean"
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Visibility of the memento",
+          "example": "family",
+          "enum": [
+            "private",
+            "family",
+            "friends",
+            "residents",
+            "public"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "format": "url"
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "format": "url"
+        },
+        "mimeType": {
+          "type": "string",
+          "example": "image/jpeg"
+        }
+      }
+    },
+    "Post": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "createdOn": {
+          "description": "Datetime when the post was created",
+          "readOnly": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "createdBy": {
+          "$ref": "#/definitions/User"
+        },
+        "postedTo": {
+          "$ref": "#/definitions/Profile"
+        },
+        "lastUpdateOn": {
+          "readOnly": true,
+          "description": "Datetime when the post was updated",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "lastUpdateBy": {
+          "$ref": "#/definitions/User"
+        },
+        "memento": {
+          "$ref": "#/definitions/Memento"
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Visibility of the post",
+          "example": "family",
+          "enum": [
+            "private",
+            "family",
+            "friends",
+            "residents",
+            "public"
+          ]
+        },
+        "commentCount": {
+          "description": "Indicates the number of comments made on the post",
+          "type": "integer"
+        },
+        "likeCount": {
+          "description": "Indicates the number of users who liked the post",
+          "type": "integer"
+        },
+        "comments": {
+          "description": "The comments made on the post",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Comment"
+          }
+        },
+        "likes": {
+          "description": "The likes given to the post",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Like"
+          }
+        }
+      }
+    },
+    "Comment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "createdOn": {
+          "description": "Datetime when the comment was created",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "createdBy": {
+          "$ref": "#/definitions/User"
+        },
+        "commentText": {
+          "description": "The text of the comment",
+          "type": "string"
+        }
+      }
+    },
+    "Like": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "createdBy": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "Album": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceId"
+            },
+            {
+              "readOnly": true
+            }
+          ]
+        },
+        "name": {
+          "description": "The name of the album",
+          "type": "string"
+        },
+        "createdOn": {
+          "description": "Datetime when the album was created",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ServerTimestamp"
+            }
+          ]
+        },
+        "postCount": {
+          "description": "Indicates the number of posts in the album",
+          "type": "integer"
+        },
+        "score": {
+          "description": "The score given to the album on a scale from 1 to 5",
+          "type": "integer"
+        },
+        "mementos": {
+          "type": "array",
+          "description": "The mementos that constitute the album",
+          "items": {
+            "$ref": "#/definitions/Memento"
+          }
+        }
+      }
+    },
+    "PlaceAlbum": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Album"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "placeName": {
+              "description": "The name of the place",
+              "type": "string"
+            },
+            "country": {
+              "description": "The country of the place",
+              "type": "string"
+            },
+            "city": {
+              "description": "The city of the place",
+              "type": "string"
+            },
+            "coordinateLat": {
+              "description": "The latitude component of the coordinates of the place",
+              "type": "number"
+            },
+            "coordinateLong": {
+              "description": "The longitude component of the coordinates of the place",
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "TimePeriodAlbum": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Album"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "periodName": {
+              "description": "The name of the period",
+              "type": "string"
+            },
+            "startDate": {
+              "description": "The starting date of the period",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/UserTimestamp"
+                }
+              ]
+            },
+            "endDate": {
+              "description": "The ending date of the period",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/UserTimestamp"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "PersonAlbum": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Album"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "personName": {
+              "description": "The name of the person",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "parameters": {
+    "pageCursor": {
+      "name": "cursor",
+      "in": "query",
+      "description": "Cursor pointing to 'where we left of'",
+      "required": false,
+      "type": "integer",
+      "format": "int32"
+    },
+    "pageSize": {
+      "name": "count",
+      "in": "query",
+      "description": "Number of items to retrieve",
+      "required": false,
+      "type": "integer",
+      "format": "int32"
+    }
+  },
+  "responses": {
+    "AccessForbidden": {
+      "description": "Access forbidden, invalid authorisation header",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "BadRequest": {
+      "description": "Request was sent in incorrect format",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "InvalidDataError": {
+      "description": "Invalid data was sent",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "NotFound": {
+      "description": "Resource was not found",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    }
+  }
+}
